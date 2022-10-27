@@ -59,6 +59,6 @@ resource "null_resource" "deploy" {
   for_each  = var.siteConfig
   provisioner "local-exec" {
     command = null != each.value.repo ? "${path.module}/Set-SourceControl.ps1 -webAppName ${azurerm_windows_web_app.app[each.key].name} -appResourceGroupName ${azurerm_windows_web_app.app[each.key].resource_group_name} -scmBranch ${each.value.branch} -repoUrl ${each.value.repo}" : "Write-Host no repo found" 
-    interpreter = ["pwsh", "-Command"]
+    interpreter = ["PowerShell", "-Command"]
   }
 }
