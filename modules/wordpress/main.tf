@@ -46,15 +46,12 @@ resource "azurerm_storage_share" "container" {
   name                 = each.value.name
   storage_account_name = azurerm_storage_account.storage.name
   quota                = 50
-  acl {
-    id = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI"
-
-    access_policy {
-      permissions = "rwdl"
-      start       = "2022-10-27T09:38:21.0000000Z"
-      expiry      = "2024-10-27T10:38:21.0000000Z"
-    }
-  }
+}
+resource "azurerm_storage_container" "container" {
+  for_each              = var.siteConfig
+  name                  = each.value.name
+  storage_account_name  = azurerm_storage_account.storage.name
+  container_access_type = "blob"
 }
 ## Windows App Service
 resource "azurerm_windows_web_app" "app" {
@@ -89,6 +86,9 @@ resource "azurerm_windows_web_app" "app" {
   app_settings = {
     "DB_SSL_CONNECTION" = "false"
     "MICROSOFT_AZURE_USE_FOR_DEFAULT_UPLOAD" = "true"
+    "MICROSOFT_AZURE_ACCOUNT_NAME"           = "${azurerm_storage_account.storage.name}"
+    "MICROSOFT_AZURE_ACCOUNT_KEY"            = "${azurerm_storage_account.storage.primary_access_key}"
+    "MICROSOFT_AZURE_CONTAINER"              = "${azurerm_storage_container.container[each.key].name}"
   }
 
   connection_string {
@@ -96,15 +96,6 @@ resource "azurerm_windows_web_app" "app" {
     type  = "MySql"
     #value = "$con=mysqli_init(); [mysqli_ssl_set($con, NULL, NULL, NULL, NULL, NULL);] mysqli_real_connect($con, ${var.serverFqdn}, ${var.adminName}@${var.serverName}, ${var.adminPassword}, ${each.value.name}-db, 3306);"
     value = "Database=${each.value.name}-db;Data Source=${var.serverFqdn};User Id=${var.adminName}@${var.serverName};Password=${var.adminPassword}"
-  }
-
-  storage_account {
-    access_key   = azurerm_storage_account.storage.primary_access_key
-    account_name = azurerm_storage_account.storage.name
-    name         = "uploads"
-    share_name   = azurerm_storage_share.container[each.key].name
-    type         = "AzureFiles"
-    mount_path   = "\\mounts\\azureFiles"
   }
 
   identity {
@@ -123,7 +114,7 @@ resource "null_resource" "deploy" {
     interpreter = ["PowerShell", "-Command"]
   }
   triggers = {
-    anything = timestamp()
+    content = file("${path.module}/Set-SourceControl.ps1")
   }
 }
 
