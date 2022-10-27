@@ -16,7 +16,7 @@ provider "azurerm" {
 ## Windows App Service
 resource "azurerm_windows_web_app" "app" {
   for_each            = var.siteConfig
-  name                = "${var.resourcePrefix}-${each.value.name}"
+  name                = each.value.name
   resource_group_name = var.resourceGroupName
   location            = var.location
   service_plan_id     = var.spId
