@@ -1,4 +1,3 @@
-
 ## Service Plan Resource Group Name
 output "rg" {
   value = azurerm_service_plan.sp.resource_group_name

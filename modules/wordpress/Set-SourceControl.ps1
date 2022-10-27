@@ -2,6 +2,7 @@ Param (
     [Parameter(Mandatory = $true)]
     [String]$webAppName,
     [string]$appResourceGroupName,
+    [string]$currentSubId,
     [string]$repoUrl,
     [string]$scmBranch
 )
@@ -19,10 +20,11 @@ $adTokenRegistry = (az account get-access-token | ConvertFrom-Json)
 $accessToken = $adtokenregistry.accessToken
 
 Login-AzAccount -AccessToken $accessToken -tenantid $tenantId -accountid $accountId
+Select-AzSubscription -Subscription $currentSubId
 
 Write-Host "Getting App information"
-$webApp = Get-AzResource -ResourceName $webAppName -ResourceType "$resourceType" -ApiVersion $apiVersion -ResourceGroupName $appResourceGroupName
-
+#$webApp = Get-AzResource -ResourceName $webAppName -ResourceType "$resourceType" -ApiVersion $apiVersion -ResourceGroupName $appResourceGroupName
+#$webApp
 $webAppConfig = Get-AzResource `
   -ResourceType      "$resourceType/config" `
   -ApiVersion        $apiVersion `

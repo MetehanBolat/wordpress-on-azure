@@ -32,3 +32,21 @@ variable "siteConfig" {
     }
   }
 }
+variable "serverFqdn" {
+  type        = string
+  description = "FQDN for backend database service"
+}
+variable "serverName" {
+  type        = string
+  description = "Name of backend database service"
+}
+variable "adminName" {
+  type        = string
+  description = "Username for database login"
+  sensitive   = true
+}
+variable "adminPassword" {
+  type        = string
+  description = "Password for database login"
+  sensitive   = true
+}

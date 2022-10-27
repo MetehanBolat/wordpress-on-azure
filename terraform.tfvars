@@ -1,5 +1,7 @@
 resourcePrefix = "kuba"
 location       = "westeurope"
+adminName      = "Metehan"
+adminPassword  = "My4w350m3P4s5W0Rd!"
 siteConfig = {
   rehber = {
     name            = "kuba-rehber"

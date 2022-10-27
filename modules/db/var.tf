@@ -6,6 +6,10 @@ variable "location" {
   type        = string
   description = "Azure Location to deploy resources"
 }
+variable "resourceGroupName" {
+  type        = string
+  description = "Name of the existing resourceGroup, to deploy resources"
+}
 variable "siteConfig" {
   description = "App Service Configuration (repo/appSettings/etc)"
   default = {
