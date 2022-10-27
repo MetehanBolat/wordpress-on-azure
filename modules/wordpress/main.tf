@@ -33,7 +33,14 @@ resource "azurerm_windows_web_app" "app" {
     websockets_enabled       = false
     worker_count             = each.value.workerCount
     application_stack {
-      current_stack = each.value.appStack
+      current_stack          = each.value.appStack
+      php_version            = each.value.appStack == "php"    ? each.value.appStackVersion : null
+      dotnet_version         = each.value.appStack == "dotnet" ? each.value.appStackVersion : null
+      node_version           = each.value.appStack == "node"   ? each.value.appStackVersion : null
+      python_version         = each.value.appStack == "python" ? each.value.appStackVersion : null
+      java_version           = each.value.appStack == "java"   ? each.value.appStackVersion : null
+      java_container         = each.value.appStack == "java"   ? each.value.javaContainer        : null
+      java_container_version = each.value.appStack == "java"   ? each.value.javaContainerVersion : null
     }
   }
   app_settings = {
