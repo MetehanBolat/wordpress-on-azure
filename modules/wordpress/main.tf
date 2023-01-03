@@ -66,7 +66,7 @@ resource "azurerm_windows_web_app" "app" {
     scm_minimum_tls_version  = "1.2"
     use_32_bit_worker        = true
     remote_debugging_enabled = false
-    vnet_route_all_enabled   = false
+    vnet_route_all_enabled   = true
     websockets_enabled       = false
     worker_count             = each.value.workerCount
     application_stack {
@@ -81,7 +81,7 @@ resource "azurerm_windows_web_app" "app" {
     }
   }
   app_settings = {
-    "DB_SSL_CONNECTION" = "false"
+    "DB_SSL_CONNECTION"                      = "true"
     "MICROSOFT_AZURE_USE_FOR_DEFAULT_UPLOAD" = "true"
     "MICROSOFT_AZURE_ACCOUNT_NAME"           = "${azurerm_storage_account.storage.name}"
     "MICROSOFT_AZURE_ACCOUNT_KEY"            = "${azurerm_storage_account.storage.primary_access_key}"

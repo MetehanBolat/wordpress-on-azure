@@ -1,4 +1,4 @@
 ## Key Vault ResourceId
 output "keyVaultId" {
-  value = azurerm_key_vault.keyvault.id
+  value = azurerm_role_assignment.current.scope
 }

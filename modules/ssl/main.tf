@@ -1,11 +1,16 @@
+## ACME DNS Verification provider
 terraform {
   required_providers {
-    # The provider is declared here just like any provider...
     acme = {
       source  = "vancluever/acme"
       version = "=2.12.0"
     }
   }
+}
+
+provider "acme" {
+  #server_url = "https://acme-v02.api.letsencrypt.org/directory"
+  server_url = "https://acme-staging-v02.api.letsencrypt.org/directory"
 }
 
 # Creates a private key in PEM format
