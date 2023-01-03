@@ -4,15 +4,30 @@ provider "azurerm" {
 }
 
 locals {
-  defaultTTL = 3600 ## in seconds
+  defaultTTL = 300 ## in seconds
 }
 
+### Public DNS Zone
 resource "azurerm_dns_zone" "dns-public" {
   for_each            = var.siteConfig
   name                = each.value.dnsName
   resource_group_name = var.resourceGroupName
 }
 
+### DNS TXT Record for *.<domain>
+resource "azurerm_dns_txt_record" "star" {
+  for_each            = var.siteConfig
+  name                = "*"
+  zone_name           = azurerm_dns_zone.dns-public[each.key].name
+  resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
+  ttl                 = local.defaultTTL
+
+  record {
+    value = var.dnsTxtCode[each.value.name]
+  }
+}
+
+### DNS TXT Record for asuid.<domain>
 resource "azurerm_dns_txt_record" "root" {
   for_each            = var.siteConfig
   name                = "asuid"
@@ -25,6 +40,7 @@ resource "azurerm_dns_txt_record" "root" {
   }
 }
 
+### DNS TXT Record for asuid.www.<domain>
 resource "azurerm_dns_txt_record" "www" {
   for_each            = var.siteConfig
   name                = "asuid.www"
@@ -37,6 +53,7 @@ resource "azurerm_dns_txt_record" "www" {
   }
 }
 
+### DNS A Record for <domain>
 resource "azurerm_dns_a_record" "root" {
   for_each            = var.siteConfig
   name                = "@"
@@ -46,6 +63,7 @@ resource "azurerm_dns_a_record" "root" {
   records             = [element(var.outboundIP[each.value.name], length(var.outboundIP[each.value.name])-1)]
 }
 
+### DNS CName Record for www.<domain>
 resource "azurerm_dns_cname_record" "www" {
   for_each            = var.siteConfig
   name                = "www"

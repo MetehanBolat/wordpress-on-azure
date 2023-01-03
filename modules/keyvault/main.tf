@@ -8,6 +8,7 @@ provider "azurerm" {
 }
 
 data "azurerm_subscription" "current" {}
+data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "keyvault" {
   name                            = "${var.resourcePrefix}-keyvault"
@@ -21,6 +22,12 @@ resource "azurerm_key_vault" "keyvault" {
   enabled_for_template_deployment = true
   purge_protection_enabled        = false
   enabled_for_disk_encryption     = false
+}
+
+resource "azurerm_role_assignment" "current" {
+  scope                = azurerm_key_vault.keyvault.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_client_config.current.object_id
 }
 
 resource "azurerm_role_assignment" "id" {

@@ -7,6 +7,8 @@ locals {
   storageName = "${lower(replace(replace("${var.resourcePrefix}","-",""),"_",""))}strassets"
 }
 
+data "azurerm_subscription" "current" {}
+
 ## storage account for assets
 resource "azurerm_storage_account" "storage" {
   name                              = length(local.storageName) >= 24 ? substr(local.storageName,0,24) : local.storageName
@@ -23,7 +25,7 @@ resource "azurerm_storage_account" "storage" {
 
   identity {
     type = "UserAssigned"
-    identity_ids = [ var.id ]
+    identity_ids = [ var.identityId ]
   }
 
   network_rules {
@@ -101,7 +103,6 @@ resource "azurerm_windows_web_app" "app" {
     identity_ids = [ var.identityId ]
   }
 }
-data "azurerm_subscription" "current" {}
 
 ## Setting source control if enabled on siteConfig
 resource "null_resource" "deploy" {
