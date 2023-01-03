@@ -14,6 +14,13 @@ module "id" {
   resourceGroupName = module.rg.rg
 }
 
+## DNS Zone Deployment
+module "dns" {
+  source            = "./modules/dns"
+  resourceGroupName = module.rg.rg
+  siteConfig        = var.siteConfig
+}
+
 ## Service Plan Deployment
 module "sp" {
   source            = "./modules/sp"

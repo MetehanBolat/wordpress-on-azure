@@ -11,6 +11,7 @@ siteConfig = {
     appStackVersion = "7.4"
     managedPipeline = "Classic"
     workerCount     = 1
+    dnsName         = "kubalirehber.com"
   }
   hotel = {
     name            = "kuba-hotel"
@@ -20,5 +21,6 @@ siteConfig = {
     appStackVersion = "7.4"
     managedPipeline = "Classic"
     workerCount     = 1
+    dnsName         = "talihavana.com"
   }
 }

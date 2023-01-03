@@ -29,6 +29,7 @@ variable "siteConfig" {
       appStackVersion = "7.4"
       managedPipeline = "Classic"
       workerCount     = 1
+      dnsName         = "some.dns"
     }
   }
 }
