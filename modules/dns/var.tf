@@ -17,3 +17,10 @@ variable "siteConfig" {
     }
   }
 }
+variable "dnsTxtCode" {
+  description = "TXT record values for DNS validation"
+}
+
+variable "outboundIP" {
+  description = "List of IP addresses for the app services"
+}

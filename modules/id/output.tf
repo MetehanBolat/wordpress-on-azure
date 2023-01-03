@@ -4,7 +4,7 @@ output "idName" {
 }
 
 ## User-Assigned Identity ResourceId
-output "id" {
+output "identityId" {
   value = azurerm_user_assigned_identity.id.id
 }
 

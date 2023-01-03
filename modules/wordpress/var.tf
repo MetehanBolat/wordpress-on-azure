@@ -14,7 +14,7 @@ variable "spId" {
   type        = string
   description = "ResourceId of the Service Plan to deploy Windows Apps"
 }
-variable "id" {
+variable "identityId" {
   type        = string
   description = "ResourceId of the User-Assigned Identity"
 }
@@ -50,4 +50,8 @@ variable "adminPassword" {
   type        = string
   description = "Password for database login"
   sensitive   = true
+}
+variable "keyVaultId" {
+  type        = string
+  description = "KeyVault ResourceId to save secrets"
 }

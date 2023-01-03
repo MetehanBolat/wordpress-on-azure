@@ -43,6 +43,15 @@ resource "azurerm_storage_container" "container" {
   storage_account_name  = azurerm_storage_account.storage.name
   container_access_type = "blob"
 }
+
+## Connection string secret
+resource "azurerm_key_vault_secret" "connectionString" {
+  for_each     = var.siteConfig
+  name         = "mysql-cs-${each.value.name}"
+  value        = "Database=${each.value.name}-db;Data Source=${var.serverFqdn};User Id=${var.adminName}@${var.serverName};Password=${var.adminPassword}"
+  key_vault_id = var.keyVaultId
+}
+
 ## Windows App Service
 resource "azurerm_windows_web_app" "app" {
   for_each            = var.siteConfig
@@ -84,13 +93,12 @@ resource "azurerm_windows_web_app" "app" {
   connection_string {
     name  = "default"
     type  = "MySql"
-    #value = "$con=mysqli_init(); [mysqli_ssl_set($con, NULL, NULL, NULL, NULL, NULL);] mysqli_real_connect($con, ${var.serverFqdn}, ${var.adminName}@${var.serverName}, ${var.adminPassword}, ${each.value.name}-db, 3306);"
-    value = "Database=${each.value.name}-db;Data Source=${var.serverFqdn};User Id=${var.adminName}@${var.serverName};Password=${var.adminPassword}"
+    value = azurerm_key_vault_secret.connectionString[each.key].value
   }
 
   identity {
     type = "UserAssigned"
-    identity_ids = [ var.id ]
+    identity_ids = [ var.identityId ]
   }
 }
 data "azurerm_subscription" "current" {}
@@ -109,3 +117,17 @@ resource "null_resource" "deploy" {
 }
 
 #Database=database-name;Data Source=database-host;User Id=database-username;Password=database-password
+
+resource "azurerm_app_service_custom_hostname_binding" "root" {
+  for_each            = var.siteConfig
+  hostname            = each.value.dnsName
+  app_service_name    = azurerm_windows_web_app.app[each.key].name
+  resource_group_name = azurerm_windows_web_app.app[each.key].resource_group_name
+}
+
+resource "azurerm_app_service_custom_hostname_binding" "www" {
+  for_each            = var.siteConfig
+  hostname            = "www.${each.value.dnsName}"
+  app_service_name    = azurerm_windows_web_app.app[each.key].name
+  resource_group_name = azurerm_windows_web_app.app[each.key].resource_group_name
+}

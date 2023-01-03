@@ -21,7 +21,7 @@ resource "azurerm_mysql_server" "server" {
   geo_redundant_backup_enabled      = false
   infrastructure_encryption_enabled = false
   public_network_access_enabled     = true
-  ssl_enforcement_enabled           = false
+  ssl_enforcement_enabled           = true
   ssl_minimal_tls_version_enforced  = "TLS1_2"
 }
 
@@ -40,4 +40,16 @@ resource "azurerm_mysql_firewall_rule" "allowAzure" {
   server_name         = azurerm_mysql_server.server.name
   start_ip_address    = "0.0.0.0"
   end_ip_address      = "0.0.0.0"
+}
+
+resource "azurerm_key_vault_secret" "username" {
+  name         = "mysql-username"
+  value        = var.adminName
+  key_vault_id = var.keyVaultId
+}
+
+resource "azurerm_key_vault_secret" "password" {
+  name         = "mysql-password"
+  value        = var.adminPassword
+  key_vault_id = var.keyVaultId
 }

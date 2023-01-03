@@ -34,3 +34,7 @@ variable "adminPassword" {
   description = "Password for MySQL Server Admin Login"
   sensitive   = true
 }
+variable "keyVaultId" {
+  type        = string
+  description = "KeyVault ResourceId to save secrets"
+}
