@@ -1,3 +1,7 @@
+## Service Principal Deployment
+module "serviceprincipal" {
+  source = "./modules/serviceprincipal"
+}
 
 ## Resource Group Deployment
 module "rg" {
@@ -36,8 +40,8 @@ module "db" {
 }
 
 ## Service Plan Deployment
-module "sp" {
-  source            = "./modules/sp"
+module "serviceplan" {
+  source            = "./modules/serviceplan"
   resourcePrefix    = var.resourcePrefix
   location          = var.location
   resourceGroupName = module.rg.rg
