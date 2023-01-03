@@ -1,8 +1,4 @@
 ## DNS Module
-provider "azurerm" {
-  features {}
-}
-
 locals {
   defaultTTL = 300 ## in seconds
 }
@@ -11,7 +7,7 @@ locals {
 resource "azurerm_dns_zone" "dns-public" {
   for_each            = var.siteConfig
   name                = each.value.dnsName
-  resource_group_name = var.resourceGroupName
+  resource_group_name = var.resource_group_name
 }
 
 ### DNS TXT Record for *.<domain>

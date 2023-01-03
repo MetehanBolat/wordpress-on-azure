@@ -1,5 +1,3 @@
-provider "azuread" {}
-
 data "azuread_client_config" "current" {}
 
 # Retrieve domain information

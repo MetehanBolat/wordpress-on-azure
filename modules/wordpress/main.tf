@@ -1,8 +1,4 @@
 ### Wordpress (Windows App Service) Module
-provider "azurerm" {
-  features {}
-}
-
 locals {
   storageName = "${lower(replace(replace("${var.resourcePrefix}","-",""),"_",""))}strassets"
 }
@@ -12,7 +8,7 @@ data "azurerm_subscription" "current" {}
 ## storage account for assets
 resource "azurerm_storage_account" "storage" {
   name                              = length(local.storageName) >= 24 ? substr(local.storageName,0,24) : local.storageName
-  resource_group_name               = var.resourceGroupName
+  resource_group_name               = var.resource_group_name
   location                          = var.location
   account_tier                      = "Standard"
   account_kind                      = "StorageV2"
@@ -58,7 +54,7 @@ resource "azurerm_key_vault_secret" "connectionString" {
 resource "azurerm_windows_web_app" "app" {
   for_each            = var.siteConfig
   name                = each.value.name
-  resource_group_name = var.resourceGroupName
+  resource_group_name = var.resource_group_name
   location            = var.location
   service_plan_id     = var.spId
 

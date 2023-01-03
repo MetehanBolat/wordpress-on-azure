@@ -1,11 +1,7 @@
 ### MySQL Database (+Server) Module
-provider "azurerm" {
-  features {}
-}
-
 resource "azurerm_mysql_server" "server" {
   name                         = "${var.resourcePrefix}-server"
-  resource_group_name          = var.resourceGroupName
+  resource_group_name          = var.resource_group_name
   location                     = var.location
 
 
@@ -28,7 +24,7 @@ resource "azurerm_mysql_server" "server" {
 resource "azurerm_mysql_database" "db" {
   for_each            = var.siteConfig
   name                = "${each.value.name}-db"
-  resource_group_name = var.resourceGroupName
+  resource_group_name = var.resource_group_name
   server_name         = azurerm_mysql_server.server.name
   charset             = "utf8"
   collation           = "utf8_turkish_ci"

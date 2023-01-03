@@ -1,20 +1,10 @@
 ### KeyVault Module
-
-provider "azurerm" {
-  features {
-    key_vault {
-      purge_soft_delete_on_destroy    = true
-      recover_soft_deleted_key_vaults = true
-    }
-  }
-}
-
 data "azurerm_subscription" "current" {}
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "keyvault" {
   name                            = "${var.resourcePrefix}-keyvault"
-  resource_group_name             = var.resourceGroupName
+  resource_group_name             = var.resource_group_name
   location                        = var.location
   tenant_id                       = data.azurerm_subscription.current.tenant_id
   soft_delete_retention_days      = 7

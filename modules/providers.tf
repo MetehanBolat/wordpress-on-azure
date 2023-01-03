@@ -1,5 +1,4 @@
 ## AzureRM (Azure) provider
-
 terraform {
   required_providers {
     azurerm = {
@@ -14,17 +13,17 @@ terraform {
   required_providers {
     azuread = {
       source  = "hashicorp/azuread"
-      version = "= 2.31.0"
+      version = "=2.31.0"
     }
   }
 }
 
+## ACME DNS Verification provider
 terraform {
   required_providers {
-    # The provider is declared here just like any provider...
     acme = {
       source  = "vancluever/acme"
-      version = "~> 2.5"
+      version = "=2.12.0"
     }
   }
 }
