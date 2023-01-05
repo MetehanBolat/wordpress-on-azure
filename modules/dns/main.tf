@@ -1,8 +1,4 @@
 ## DNS Module
-locals {
-  defaultTTL = 300 ## in seconds
-}
-
 ### Public DNS Zone
 resource "azurerm_dns_zone" "dns-public" {
   for_each            = var.siteConfig
@@ -11,17 +7,17 @@ resource "azurerm_dns_zone" "dns-public" {
 }
 
 ### DNS TXT Record for *.<domain>
-resource "azurerm_dns_txt_record" "star" {
-  for_each            = var.siteConfig
-  name                = "*"
-  zone_name           = azurerm_dns_zone.dns-public[each.key].name
-  resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
-  ttl                 = local.defaultTTL
-
-  record {
-    value = var.dnsTxtCode[each.value.name]
-  }
-}
+#resource "azurerm_dns_txt_record" "star" {
+#  for_each            = var.siteConfig
+#  name                = "*"
+#  zone_name           = azurerm_dns_zone.dns-public[each.key].name
+#  resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
+#  ttl                 = var.defaultTTL
+#
+#  record {
+#    value = var.dnsTxtCode[each.value.name]
+#  }
+#}
 
 ### DNS TXT Record for asuid.<domain>
 resource "azurerm_dns_txt_record" "root" {
@@ -29,7 +25,7 @@ resource "azurerm_dns_txt_record" "root" {
   name                = "asuid"
   zone_name           = azurerm_dns_zone.dns-public[each.key].name
   resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
-  ttl                 = local.defaultTTL
+  ttl                 = var.defaultTTL
 
   record {
     value = var.dnsTxtCode[each.value.name]
@@ -42,7 +38,7 @@ resource "azurerm_dns_txt_record" "www" {
   name                = "asuid.www"
   zone_name           = azurerm_dns_zone.dns-public[each.key].name
   resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
-  ttl                 = local.defaultTTL
+  ttl                 = var.defaultTTL
 
   record {
     value = var.dnsTxtCode[each.value.name]
@@ -55,7 +51,7 @@ resource "azurerm_dns_a_record" "root" {
   name                = "@"
   zone_name           = azurerm_dns_zone.dns-public[each.key].name
   resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
-  ttl                 = local.defaultTTL
+  ttl                 = var.defaultTTL
   records             = [element(var.outboundIP[each.value.name], length(var.outboundIP[each.value.name])-1)]
 }
 
@@ -65,7 +61,7 @@ resource "azurerm_dns_cname_record" "www" {
   name                = "www"
   zone_name           = azurerm_dns_zone.dns-public[each.key].name
   resource_group_name = azurerm_dns_zone.dns-public[each.key].resource_group_name
-  ttl                 = local.defaultTTL
-  record              = each.value.dnsName
+  ttl                 = var.defaultTTL
+  record              = "${each.value.name}.azurewebsites.net"
 }
 

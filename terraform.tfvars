@@ -13,6 +13,7 @@ siteConfig = {
     managedPipeline = "Classic"
     workerCount     = 1
     dnsName         = "kubalirehber.com"
+    email           = "info@kubalirehber.com"
   }
   hotel = {
     name            = "cuba-hotel"
@@ -23,5 +24,6 @@ siteConfig = {
     managedPipeline = "Classic"
     workerCount     = 1
     dnsName         = "talihavana.com"
+    email           = "info@talihavana.com"
   }
 }

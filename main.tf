@@ -22,6 +22,12 @@ module "serviceprincipal" {
   source = "./modules/serviceprincipal"
 }
 
+resource "azurerm_role_assignment" "serviceprincipal" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Contributor"
+  principal_id         = module.serviceprincipal.principalId
+}
+
 ## Resource Group Deployment
 # THIS WILL BE USED FOR ALL AZURE SOURCES
 resource "azurerm_resource_group" "rg" {
@@ -97,6 +103,12 @@ module "dns" {
 
 ## SSL Deployment
 module "ssl" {
-  source = "./modules/ssl"
-  email  = var.adminContact
+  source                  = "./modules/ssl"
+  dns_resource_group_name = module.dns.dns_resource_group_name
+  bindingId-www           = module.app.bindingId-www
+  bindingId-root          = module.app.bindingId-root
+  clientId                = module.serviceprincipal.clientId
+  clientSecret            = module.serviceprincipal.clientSecret
+  siteConfig              = var.siteConfig
+  location                = var.location
 }
