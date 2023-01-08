@@ -65,3 +65,29 @@ output "adminPassword" {
 output "rg" {
   value = azurerm_mysql_server.mysql.resource_group_name
 }
+
+## User assigned identity Id
+output "identityId" {
+  value = azurerm_user_assigned_identity.id.id
+}
+
+## KeyVault Id
+output "keyVaultId" {
+  value = module.keyvault.keyVaultId
+}
+
+## Service Principal clientId (applicationId)
+output "clientId" {
+  value = module.serviceprincipal.clientId
+}
+
+## Service Principal secret
+output "clientSecret" {
+  value     = module.serviceprincipal.clientSecret
+  sensitive = true
+}
+
+## Service Principal clientId (applicationId)
+output "principalId" {
+  value = module.serviceprincipal.principalId
+}

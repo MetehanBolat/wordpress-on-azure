@@ -26,16 +26,51 @@ module "shared" {
   adminPassword          = var.adminPassword
 }
 
+module "dns" {
+  source     = "./modules/01_dns"
+  location   = var.location
+  siteConfig = var.siteConfig
+}
+
+module "wordpress" {
+  source          = "./modules/02_wordpress"
+  location        = var.location
+  rgName          = module.dns.rg
+  storageName     = module.shared.storageName
+  storageKey      = module.shared.storageKey
+  storageEndpoint = module.shared.storageEndpoint
+  mysqlServerName = module.shared.mysqlServerName
+  mysqlRGName     = module.shared.rg
+  mysqlServerFqdn = module.shared.mysqlServerFqdn
+  servicePlanId   = module.shared.servicePlanId
+  identityId      = module.shared.identityId
+  adminName       = module.shared.adminName
+  adminPassword   = module.shared.adminPassword
+  keyVaultId      = module.shared.keyVaultId
+  siteConfig      = var.siteConfig
+}
+
+module "cdn" {
+  source          = "./modules/03_cdn"
+  location        = var.location
+  rgName          = module.dns.rg
+  storageEndpoint = module.shared.storageEndpoint
+  cdnProfileName  = module.shared.cndProfileName
+  siteConfig      = var.siteConfig
+}
+
+
+
+
+
 ### MySQL Database Deployment
 #module "db" {
-#  source              = "./modules/db"
-#  resourcePrefix      = var.resourcePrefix
-#  location            = azurerm_resource_group.rg.location
-#  resource_group_name = azurerm_resource_group.rg.name
-#  siteConfig          = var.siteConfig
-#  adminName           = var.adminName
-#  adminPassword       = var.adminPassword
-#  keyVaultId          = module.keyvault.keyVaultId
+#  source          = "./modules/01_db"
+#  location        = var.location
+#  mysqlServerName = module.shared.mysqlServerName
+#  mysqlRGName     = module.shared.rg
+#  siteConfig      = var.siteConfig
+#  #keyVaultId = module.keyvault.keyVaultId
 #}
 #
 

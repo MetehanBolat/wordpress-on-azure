@@ -1,38 +1,54 @@
-### Wordpress (Windows App Service) Module
-
+### Wordpress (Windows App Service) Module (with MySQL database & Azure files)
+locals {
+  charset   = "utf8"
+  collation = "utf8_turkish_ci"
+}
 
 data "azurerm_subscription" "current" {}
 
+## MySQL Database
+resource "azurerm_mysql_database" "mysql" {
+  for_each            = var.siteConfig
+  name                = "${each.value.name}-db"
+  resource_group_name = var.mysqlRGName
+  server_name         = var.mysqlServerName
+  charset             = local.charset
+  collation           = local.collation
+}
 
-## File share
+## File shares
 resource "azurerm_storage_share" "container" {
   for_each             = var.siteConfig
   name                 = each.value.name
-  storage_account_name = azurerm_storage_account.storage.name
+  storage_account_name = var.storageName
   quota                = 50
 }
 resource "azurerm_storage_container" "container" {
   for_each              = var.siteConfig
   name                  = each.value.name
-  storage_account_name  = azurerm_storage_account.storage.name
+  storage_account_name  = var.storageName
   container_access_type = "blob"
 }
 
-## Connection string secret
+### Connection string secret
 resource "azurerm_key_vault_secret" "connectionString" {
   for_each     = var.siteConfig
   name         = "mysql-cs-${each.value.name}"
-  value        = "Database=${each.value.name}-db;Data Source=${var.serverFqdn};User Id=${var.adminName}@${var.serverName};Password=${var.adminPassword}"
+  value        = "Database=${each.value.name}-db;Data Source=${var.mysqlServerFqdn};User Id=${var.adminName}@${var.mysqlServerName};Password=${var.adminPassword}"
   key_vault_id = var.keyVaultId
 }
 
 ## Windows App Service
 resource "azurerm_windows_web_app" "app" {
+  depends_on = [
+    azurerm_storage_container.container,
+    azurerm_mysql_database.mysql
+  ]
   for_each            = var.siteConfig
   name                = each.value.name
-  resource_group_name = var.resource_group_name
+  resource_group_name = var.rgName[each.value.dnsName]
   location            = var.location
-  service_plan_id     = var.spId
+  service_plan_id     = var.servicePlanId
 
   site_config {
     always_on                = true
@@ -59,8 +75,8 @@ resource "azurerm_windows_web_app" "app" {
   app_settings = {
     "DB_SSL_CONNECTION"                      = "true"
     "MICROSOFT_AZURE_USE_FOR_DEFAULT_UPLOAD" = "true"
-    "MICROSOFT_AZURE_ACCOUNT_NAME"           = "${azurerm_storage_account.storage.name}"
-    "MICROSOFT_AZURE_ACCOUNT_KEY"            = "${azurerm_storage_account.storage.primary_access_key}"
+    "MICROSOFT_AZURE_ACCOUNT_NAME"           = "${var.storageName}"
+    "MICROSOFT_AZURE_ACCOUNT_KEY"            = "${var.storageKey}"
     "MICROSOFT_AZURE_CONTAINER"              = "${azurerm_storage_container.container[each.key].name}"
   }
 
@@ -89,5 +105,5 @@ resource "null_resource" "deploy" {
   }
 }
 
-#Database=database-name;Data Source=database-host;User Id=database-username;Password=database-password
+
 

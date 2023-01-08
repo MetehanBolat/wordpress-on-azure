@@ -1,14 +1,15 @@
-variable "resourcePrefix" {
-  type        = string
-  description = "prefix for resource naming (<resourcePrefix>-<resourceType>)"
-}
 variable "location" {
   type        = string
   description = "Azure Location to deploy resources"
 }
-variable "resource_group_name" {
-  type        = string
+variable "rgName" {
   description = "Name of the existing resourceGroup, to deploy resources"
+}
+variable "storageEndpoint" {
+  description = "Blob endpoint to set CDN origin"
+}
+variable "cdnProfileName" {
+  description = "CDN profile name to create endpoints"
 }
 variable "siteConfig" {
   description = "App Service Configuration (repo/appSettings/etc)"
@@ -24,22 +25,20 @@ variable "siteConfig" {
     }
   }
 }
-variable "storageEndpoint" {
-  #type        = string
-  description = "Blob endpoint to set CDN origin"
-}
+
+#variable "defaultTTL" {
+#  description = "Secret to authenticate Azure for ACME verification"
+#  type        = number
+#  default     = 300
+#}
 #variable "dns_zone_name" {
 #  description = "DNS Zone name for CDN endpoint"
 #}
 #variable "dns_resource_group_name" {
 #  description = "Resource group name of DNS Zone name for CDN endpoint"
 #}
-variable "defaultTTL" {
-  description = "Secret to authenticate Azure for ACME verification"
-  type        = number
-  default     = 300
-}
-variable "certificateId" {
-  type        = string
-  description = "KeyVault SecretId of the SSL certificate"
-}
+
+#variable "certificateId" {
+#  type        = string
+#  description = "KeyVault SecretId of the SSL certificate"
+#}

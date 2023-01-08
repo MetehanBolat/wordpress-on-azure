@@ -1,6 +1,6 @@
-variable "resource_group_name" {
+variable "location" {
   type        = string
-  description = "Name of the existing resourceGroup, to deploy resources"
+  description = "Azure location for resource group (irrelevant for DNS resources)"
 }
 variable "siteConfig" {
   description = "App Service Configuration (repo/appSettings/etc)"
@@ -17,18 +17,18 @@ variable "siteConfig" {
     }
   }
 }
-variable "dnsTxtCode" {
-  description = "TXT record values for DNS validation"
-}
-variable "appServiceName" {
-  description = "App Service Name for custom DNS binding"
-}
-variable "outboundIP" {
-  description = "List of IP addresses for the app services"
-}
-variable "defaultTTL" {
-  description = "Secret to authenticate Azure for ACME verification"
-  type = number
-  default = 300
-}
+#variable "dnsTxtCode" {
+#  description = "TXT record values for DNS validation"
+#}
+#variable "appServiceName" {
+#  description = "App Service Name for custom DNS binding"
+#}
+#variable "outboundIP" {
+#  description = "List of IP addresses for the app services"
+#}
+#variable "defaultTTL" {
+#  description = "Secret to authenticate Azure for ACME verification"
+#  type = number
+#  default = 300
+#}
 #variable "cdnEndpointDNS" {}

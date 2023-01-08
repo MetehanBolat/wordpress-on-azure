@@ -18,7 +18,7 @@ module "serviceprincipal" {
 
 ## Resource Group Deployment
 # THIS WILL BE USED FOR ALL SHARED AZURE SOURCES
-resource "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "shared" {
   name     = "${var.resourcePrefix}-rg"
   location = var.location
 }
@@ -26,16 +26,16 @@ resource "azurerm_resource_group" "rg" {
 ## User-Assigned Identity Deployment
 resource "azurerm_user_assigned_identity" "id" {
   name                = "${var.resourcePrefix}-id"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.shared.name
+  location            = azurerm_resource_group.shared.location
 }
 
 ## KeyVault Service Deployment
 module "keyvault" {
   source              = "./keyvault"
   resourcePrefix      = var.resourcePrefix
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.shared.location
+  resource_group_name = azurerm_resource_group.shared.name
   principalId         = azurerm_user_assigned_identity.id.principal_id
 }
 
@@ -48,8 +48,8 @@ resource "azurerm_role_assignment" "serviceprincipal" {
 ## storage account for assets
 resource "azurerm_storage_account" "storage" {
   name                              = length(local.storageName) >= 24 ? substr(local.storageName,0,24) : local.storageName
-  location                          = azurerm_resource_group.rg.location
-  resource_group_name               = azurerm_resource_group.rg.name
+  location                          = azurerm_resource_group.shared.location
+  resource_group_name               = azurerm_resource_group.shared.name
   account_tier                      = "Standard"
   account_kind                      = "StorageV2"
   account_replication_type          = "LRS"
@@ -72,16 +72,16 @@ resource "azurerm_storage_account" "storage" {
 ## CDN (FrontDoor) Profile
 resource "azurerm_cdn_profile" "cdn" {
   name                = "${var.resourcePrefix}-cdn"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.shared.location
+  resource_group_name = azurerm_resource_group.shared.name
   sku                 = local.cdnSku
 }
 
 ## Service Plan Deployment
 resource "azurerm_service_plan" "serviceplan" {
   name                = "${var.resourcePrefix}-sp"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.shared.name
+  location            = azurerm_resource_group.shared.location
 
   os_type                  = local.servicePlanOSType
   sku_name                 = var.servicePlanSku
@@ -93,8 +93,8 @@ resource "azurerm_service_plan" "serviceplan" {
 ### MySQL Database (+Server) Module
 resource "azurerm_mysql_server" "mysql" {
   name                = "${var.resourcePrefix}-mysql"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.shared.location
+  resource_group_name = azurerm_resource_group.shared.name
 
 
   administrator_login          = var.adminName
@@ -111,4 +111,24 @@ resource "azurerm_mysql_server" "mysql" {
   public_network_access_enabled     = true
   ssl_enforcement_enabled           = true
   ssl_minimal_tls_version_enforced  = "TLS1_2"
+}
+
+resource "azurerm_mysql_firewall_rule" "allowAzure" {
+  name                = "allowAzure"
+  resource_group_name = azurerm_mysql_server.mysql.resource_group_name
+  server_name         = azurerm_mysql_server.mysql.name
+  start_ip_address    = "0.0.0.0"
+  end_ip_address      = "0.0.0.0"
+}
+
+resource "azurerm_key_vault_secret" "username" {
+  name         = "mysql-username"
+  value        = var.adminName
+  key_vault_id = module.keyvault.keyVaultId
+}
+
+resource "azurerm_key_vault_secret" "password" {
+  name         = "mysql-password"
+  value        = var.adminPassword
+  key_vault_id = module.keyvault.keyVaultId
 }
