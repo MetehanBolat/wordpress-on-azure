@@ -1,11 +1,18 @@
-variable "dns_resource_group_name" {
+variable "resource_group_name" {
+  type        = string
   description = "Resource group name of DNS zone name for ACME verification"
 }
-variable "bindingId-www" {
-  description = "Custom domain binding of www.<domain>"
-}
-variable "bindingId-root" {
-  description = "Custom domain binding of <domain>"
+#variable "bindingId-www" {
+#  type        = string
+#  description = "Custom domain binding of www.<domain>"
+#}
+#variable "bindingId-root" {
+#  type        = string
+#  description = "Custom domain binding of <domain>"
+#}
+variable "principalId" {
+  description = "ObjectId of service principal to set RBAC"
+  type        = string
 }
 variable "clientId" {
   description = "ApplicationId to authenticate Azure for ACME verification"
@@ -27,6 +34,7 @@ variable "siteConfig" {
       appStackVersion = "7.4"
       managedPipeline = "Classic"
       workerCount     = 1
+      email           = "info@somesite"
     }
   }
 }
@@ -38,4 +46,8 @@ variable "defaultTTL" {
   description = "Secret to authenticate Azure for ACME verification"
   type        = number
   default     = 300
+}
+variable "keyVaultId" {
+  description = "ResourceId of keyvault resource to save the SSL certificate"
+  type        = string
 }

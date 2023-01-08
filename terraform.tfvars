@@ -1,6 +1,6 @@
 resourcePrefix = "cuba"
 location       = "westeurope"
-adminContact   = "metehan@metehanbolat.com"
+#adminContact   = "metehan@metehanbolat.com"
 adminName      = "Metehan"
 adminPassword  = "My4w350m3P4s5W0Rd!"
 siteConfig = {

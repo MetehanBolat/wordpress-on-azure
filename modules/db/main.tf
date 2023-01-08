@@ -1,26 +1,3 @@
-### MySQL Database (+Server) Module
-resource "azurerm_mysql_server" "server" {
-  name                         = "${var.resourcePrefix}-server"
-  resource_group_name          = var.resource_group_name
-  location                     = var.location
-
-
-  administrator_login          = var.adminName
-  administrator_login_password = var.adminPassword
-
-  sku_name   = "B_Gen5_1"
-  storage_mb = 32768
-  version    = "8.0"
-
-  auto_grow_enabled                 = true
-  backup_retention_days             = 7
-  geo_redundant_backup_enabled      = false
-  infrastructure_encryption_enabled = false
-  public_network_access_enabled     = true
-  ssl_enforcement_enabled           = true
-  ssl_minimal_tls_version_enforced  = "TLS1_2"
-}
-
 resource "azurerm_mysql_database" "db" {
   for_each            = var.siteConfig
   name                = "${each.value.name}-db"

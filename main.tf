@@ -16,99 +16,97 @@ provider "azuread" {
   tenant_id = data.azurerm_subscription.current.tenant_id
 }
 
-## Service Principal Deployment
-# THIS WILL BE USED FOR ACME DNS VERIFICATION
-module "serviceprincipal" {
-  source = "./modules/serviceprincipal"
+module "shared" {
+  source                 = "./modules/00_shared"
+  resourcePrefix         = var.resourcePrefix
+  location               = var.location
+  servicePlanSku         = var.servicePlanSku
+  servicePlanWorkerCount = var.servicePlanWorkerCount
+  adminName              = var.adminName
+  adminPassword          = var.adminPassword
 }
 
-resource "azurerm_role_assignment" "serviceprincipal" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Contributor"
-  principal_id         = module.serviceprincipal.principalId
-}
+### MySQL Database Deployment
+#module "db" {
+#  source              = "./modules/db"
+#  resourcePrefix      = var.resourcePrefix
+#  location            = azurerm_resource_group.rg.location
+#  resource_group_name = azurerm_resource_group.rg.name
+#  siteConfig          = var.siteConfig
+#  adminName           = var.adminName
+#  adminPassword       = var.adminPassword
+#  keyVaultId          = module.keyvault.keyVaultId
+#}
+#
 
-## Resource Group Deployment
-# THIS WILL BE USED FOR ALL AZURE SOURCES
-resource "azurerm_resource_group" "rg" {
-  name     = "${var.resourcePrefix}-rg"
-  location = var.location
-}
+#
+### App Service Deployment
+#module "wordpress" {
+#  source              = "./modules/wordpress"
+#  resourcePrefix      = var.resourcePrefix
+#  location            = var.location
+#  resource_group_name = azurerm_service_plan.serviceplan.resource_group_name
+#  spId                = azurerm_service_plan.serviceplan.id
+#  identityId          = azurerm_user_assigned_identity.id.id
+#  siteConfig          = var.siteConfig
+#  serverFqdn          = module.db.serverFqdn
+#  serverName          = module.db.serverName
+#  adminName           = module.db.adminName
+#  adminPassword       = module.db.adminPassword
+#  keyVaultId          = module.keyvault.keyVaultId
+#}
+#
+### DNS Zone Deployment
+#module "dns" {
+#  source              = "./modules/dns"
+#  resource_group_name = azurerm_resource_group.rg.name
+#  siteConfig          = var.siteConfig
+#  dnsTxtCode          = module.wordpress.dnsTxtCode
+#  outboundIP          = module.wordpress.outboundIP
+#  appServiceName      = module.wordpress.appServiceName
+#  #cdnEndpointDNS      = module.cdn.cdnEndpointDNS
+#}
+#
+### SSL Deployment
+#module "ssl" {
+#  source                  = "./modules/ssl"
+#  resource_group_name     = azurerm_resource_group.rg.name
+#  principalId             = module.serviceprincipal.principalId
+#  clientId                = module.serviceprincipal.clientId
+#  clientSecret            = module.serviceprincipal.clientSecret
+#  siteConfig              = var.siteConfig
+#  location                = var.location
+#  keyVaultId              = module.keyvault.keyVaultId
+#}
 
-## User-Assigned Identity Deployment
-resource "azurerm_user_assigned_identity" "id" {
-  name                = "${var.resourcePrefix}-id"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-}
+#module "ssl-rehber" {
+#  source                  = "./modules/ssl"
+#  resource_group_name     = azurerm_resource_group.rg.name
+#  bindingId-www           = module.app.bindingId-www["www.talihavana.com"]
+#  bindingId-root          = module.app.bindingId-root["talihavana.com"]
+#  clientId                = module.serviceprincipal.clientId
+#  clientSecret            = module.serviceprincipal.clientSecret
+#  siteConfig              = var.siteConfig["hotel"]
+#  location                = var.location
+#  keyVaultId              = module.keyvault.keyVaultId
+#}
 
-## KeyVault Service Deployment
-module "keyvault" {
-  source              = "./modules/keyvault"
-  resourcePrefix      = var.resourcePrefix
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  principalId         = azurerm_user_assigned_identity.id.principal_id
-}
-
-## MySQL Database Deployment
-module "db" {
-  source              = "./modules/db"
-  resourcePrefix      = var.resourcePrefix
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  siteConfig          = var.siteConfig
-  adminName           = var.adminName
-  adminPassword       = var.adminPassword
-  keyVaultId          = module.keyvault.keyVaultId
-}
-
-## Service Plan Deployment
-resource "azurerm_service_plan" "serviceplan" {
-  name                = "${var.resourcePrefix}-sp"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-
-  os_type                  = var.osType
-  sku_name                 = var.skuName
-  worker_count             = var.workerCount
-  per_site_scaling_enabled = true
-  zone_balancing_enabled   = false ## not available on all zones
-}
-
-## App Service Deployment
-module "app" {
-  source              = "./modules/wordpress"
-  resourcePrefix      = var.resourcePrefix
-  location            = var.location
-  resource_group_name = azurerm_service_plan.serviceplan.resource_group_name
-  spId                = azurerm_service_plan.serviceplan.id
-  identityId          = azurerm_user_assigned_identity.id.id
-  siteConfig          = var.siteConfig
-  serverFqdn          = module.db.serverFqdn
-  serverName          = module.db.serverName
-  adminName           = module.db.adminName
-  adminPassword       = module.db.adminPassword
-  keyVaultId          = module.keyvault.keyVaultId
-}
-
-## DNS Zone Deployment
-module "dns" {
-  source              = "./modules/dns"
-  resource_group_name = azurerm_resource_group.rg.name
-  siteConfig          = var.siteConfig
-  dnsTxtCode          = module.app.dnsTxtCode
-  outboundIP          = module.app.outboundIP
-}
-
-## SSL Deployment
-module "ssl" {
-  source                  = "./modules/ssl"
-  dns_resource_group_name = module.dns.dns_resource_group_name
-  bindingId-www           = module.app.bindingId-www
-  bindingId-root          = module.app.bindingId-root
-  clientId                = module.serviceprincipal.clientId
-  clientSecret            = module.serviceprincipal.clientSecret
-  siteConfig              = var.siteConfig
-  location                = var.location
-}
+#module "cdn-hotel" {
+#  source                  = "./modules/cdn"
+#  resourcePrefix          = var.resourcePrefix
+#  location                = var.location
+#  resource_group_name     = azurerm_resource_group.rg.name
+#  siteConfig              = var.siteConfig["hotel"]
+#  storageEndpoint         = module.app.storageEndpoint#["hotel"]
+#  certificateId           = module.ssl-hotel.certificateId
+#}
+#
+#module "cdn-rehber" {
+#  source                  = "./modules/cdn"
+#  resourcePrefix          = var.resourcePrefix
+#  location                = var.location
+#  resource_group_name     = azurerm_resource_group.rg.name
+#  siteConfig              = var.siteConfig["rehber"]
+#  storageEndpoint         = module.app.storageEndpoint#["rehber"]
+#  certificateId           = module.ssl-rehber.certificateId
+#}

@@ -24,16 +24,7 @@ variable "siteConfig" {
     }
   }
 }
-variable "adminName" {
-  type        = string
-  description = "Username for MySQL Server Admin Login"
-  sensitive   = true
-}
-variable "adminPassword" {
-  type        = string
-  description = "Password for MySQL Server Admin Login"
-  sensitive   = true
-}
+
 variable "keyVaultId" {
   type        = string
   description = "KeyVault ResourceId to save secrets"

@@ -4,9 +4,11 @@ output "dnsTxtCode" {
 output "outboundIP" {
   value = { for app in azurerm_windows_web_app.app: app.name => app.outbound_ip_address_list }
 }
-output "bindingId-root" {
-  value = { for root in azurerm_app_service_custom_hostname_binding.root: root.hostname => root.id }
+
+output "storageEndpoint" {
+  value = { for container in azurerm_storage_container.container: container.name => "${azurerm_storage_account.storage.primary_blob_endpoint}${container.name}" }
 }
-output "bindingId-www" {
-  value = { for www in azurerm_app_service_custom_hostname_binding.www: www.hostname => www.id }
+
+output "appServiceName" {
+  value = { for app in azurerm_windows_web_app.app: app.name => app.name }
 }

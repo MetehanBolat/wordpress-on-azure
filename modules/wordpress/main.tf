@@ -1,33 +1,9 @@
 ### Wordpress (Windows App Service) Module
-locals {
-  storageName = "${lower(replace(replace("${var.resourcePrefix}","-",""),"_",""))}strassets"
-}
+
 
 data "azurerm_subscription" "current" {}
 
-## storage account for assets
-resource "azurerm_storage_account" "storage" {
-  name                              = length(local.storageName) >= 24 ? substr(local.storageName,0,24) : local.storageName
-  resource_group_name               = var.resource_group_name
-  location                          = var.location
-  account_tier                      = "Standard"
-  account_kind                      = "StorageV2"
-  account_replication_type          = "LRS"
-  access_tier                       = "Hot"
-  enable_https_traffic_only         = true
-  min_tls_version                   = "TLS1_2"
-  infrastructure_encryption_enabled = true
-  allow_nested_items_to_be_public   = true
 
-  identity {
-    type = "UserAssigned"
-    identity_ids = [ var.identityId ]
-  }
-
-  network_rules {
-    default_action = "Allow"
-  }
-}
 ## File share
 resource "azurerm_storage_share" "container" {
   for_each             = var.siteConfig
@@ -115,16 +91,3 @@ resource "null_resource" "deploy" {
 
 #Database=database-name;Data Source=database-host;User Id=database-username;Password=database-password
 
-resource "azurerm_app_service_custom_hostname_binding" "root" {
-  for_each            = var.siteConfig
-  hostname            = each.value.dnsName
-  app_service_name    = azurerm_windows_web_app.app[each.key].name
-  resource_group_name = azurerm_windows_web_app.app[each.key].resource_group_name
-}
-
-resource "azurerm_app_service_custom_hostname_binding" "www" {
-  for_each            = var.siteConfig
-  hostname            = "www.${each.value.dnsName}"
-  app_service_name    = azurerm_windows_web_app.app[each.key].name
-  resource_group_name = azurerm_windows_web_app.app[each.key].resource_group_name
-}
