@@ -16,6 +16,7 @@ provider "azuread" {
   tenant_id = data.azurerm_subscription.current.tenant_id
 }
 
+## ServicePrincipal, KeyVault, CDN Profile, ServicePlan, MySQL Server, Storage Account
 module "shared" {
   source                 = "./modules/00_shared"
   resourcePrefix         = var.resourcePrefix
@@ -26,12 +27,14 @@ module "shared" {
   adminPassword          = var.adminPassword
 }
 
+## per site DNS deployment
 module "dns" {
   source     = "./modules/01_dns"
   location   = var.location
   siteConfig = var.siteConfig
 }
 
+## per site Azure Files, MySQL Database, Windows App Service
 module "wordpress" {
   source          = "./modules/02_wordpress"
   location        = var.location
@@ -50,57 +53,28 @@ module "wordpress" {
   siteConfig      = var.siteConfig
 }
 
+## per site CDN endpoints for storage
 module "cdn" {
   source          = "./modules/03_cdn"
   location        = var.location
-  rgName          = module.dns.rg
-  storageEndpoint = module.shared.storageEndpoint
+  cdnRGName       = module.shared.rg
   cdnProfileName  = module.shared.cndProfileName
+  storageFqdn     = module.shared.storageFqdn
   siteConfig      = var.siteConfig
 }
 
+## Custom DNS hostname binding for AppServices and CDN Endpoints
+module "custom-dns" {
+  source         = "./modules/04_custom-dns"
+  dnsTxtCode     = module.wordpress.dnsTxtCode
+  appServiceName = module.wordpress.appServiceName
+  outboundIP     = module.wordpress.outboundIP
+  cdnEndpointDNS = module.cdn.cdnEndpointDNS
+  dnsZone        = module.dns.dnsZone
+  dnsRG          = module.dns.rg
+  siteConfig     = var.siteConfig
+}
 
-
-
-
-### MySQL Database Deployment
-#module "db" {
-#  source          = "./modules/01_db"
-#  location        = var.location
-#  mysqlServerName = module.shared.mysqlServerName
-#  mysqlRGName     = module.shared.rg
-#  siteConfig      = var.siteConfig
-#  #keyVaultId = module.keyvault.keyVaultId
-#}
-#
-
-#
-### App Service Deployment
-#module "wordpress" {
-#  source              = "./modules/wordpress"
-#  resourcePrefix      = var.resourcePrefix
-#  location            = var.location
-#  resource_group_name = azurerm_service_plan.serviceplan.resource_group_name
-#  spId                = azurerm_service_plan.serviceplan.id
-#  identityId          = azurerm_user_assigned_identity.id.id
-#  siteConfig          = var.siteConfig
-#  serverFqdn          = module.db.serverFqdn
-#  serverName          = module.db.serverName
-#  adminName           = module.db.adminName
-#  adminPassword       = module.db.adminPassword
-#  keyVaultId          = module.keyvault.keyVaultId
-#}
-#
-### DNS Zone Deployment
-#module "dns" {
-#  source              = "./modules/dns"
-#  resource_group_name = azurerm_resource_group.rg.name
-#  siteConfig          = var.siteConfig
-#  dnsTxtCode          = module.wordpress.dnsTxtCode
-#  outboundIP          = module.wordpress.outboundIP
-#  appServiceName      = module.wordpress.appServiceName
-#  #cdnEndpointDNS      = module.cdn.cdnEndpointDNS
-#}
 #
 ### SSL Deployment
 #module "ssl" {
@@ -126,22 +100,3 @@ module "cdn" {
 #  keyVaultId              = module.keyvault.keyVaultId
 #}
 
-#module "cdn-hotel" {
-#  source                  = "./modules/cdn"
-#  resourcePrefix          = var.resourcePrefix
-#  location                = var.location
-#  resource_group_name     = azurerm_resource_group.rg.name
-#  siteConfig              = var.siteConfig["hotel"]
-#  storageEndpoint         = module.app.storageEndpoint#["hotel"]
-#  certificateId           = module.ssl-hotel.certificateId
-#}
-#
-#module "cdn-rehber" {
-#  source                  = "./modules/cdn"
-#  resourcePrefix          = var.resourcePrefix
-#  location                = var.location
-#  resource_group_name     = azurerm_resource_group.rg.name
-#  siteConfig              = var.siteConfig["rehber"]
-#  storageEndpoint         = module.app.storageEndpoint#["rehber"]
-#  certificateId           = module.ssl-rehber.certificateId
-#}

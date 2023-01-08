@@ -3,7 +3,7 @@ output "dnsZoneId" {
   value = {for dns in azurerm_dns_zone.dns-public: dns.name => dns.id}
 }
 
-output "dnsName" {
+output "dnsZone" {
   value = {for dns in azurerm_dns_zone.dns-public: dns.name => dns.name}
 }
 

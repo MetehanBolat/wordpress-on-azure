@@ -63,6 +63,7 @@ variable "siteConfig" {
       managedPipeline = "Classic"
       workerCount     = 1
       dnsName         = "some.dns"
+      email           = "info@some.dns"
     }
   }
 }

@@ -2,15 +2,18 @@ variable "location" {
   type        = string
   description = "Azure Location to deploy resources"
 }
-variable "rgName" {
-  description = "Name of the existing resourceGroup, to deploy resources"
-}
-variable "storageEndpoint" {
-  description = "Blob endpoint to set CDN origin"
+variable "cdnRGName" {
+  type        = string
+  description = "Resource group of CDN profile to create endpoints"
 }
 variable "cdnProfileName" {
+  type        = string
   description = "CDN profile name to create endpoints"
 }
+variable "storageFqdn" {
+  description = "Blob fqdn to set CDN origin"
+}
+
 variable "siteConfig" {
   description = "App Service Configuration (repo/appSettings/etc)"
   default = {
@@ -22,6 +25,8 @@ variable "siteConfig" {
       appStackVersion = "7.4"
       managedPipeline = "Classic"
       workerCount     = 1
+      dnsName         = "some.dns"
+      email           = "info@some.dns"
     }
   }
 }
