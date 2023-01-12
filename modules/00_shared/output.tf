@@ -87,7 +87,12 @@ output "clientSecret" {
   sensitive = true
 }
 
-## Service Principal clientId (applicationId)
+## Service Principal clientId (applicationId) of ACME application
 output "principalId" {
   value = module.serviceprincipal.principalId
+}
+
+## Service Principal clientId (applicationId) of Azure CDN
+output "cdnPrincipalId" {
+  value = module.serviceprincipal.cdnPrincipalId
 }

@@ -14,3 +14,7 @@ output "principalId" {
   value = azuread_service_principal.acme.object_id
 }
 
+## Service Principal clientId (applicationId) for Azure CDN application
+output "cdnPrincipalId" {
+  value = azuread_service_principal.cdn.object_id
+}

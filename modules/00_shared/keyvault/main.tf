@@ -22,8 +22,20 @@ resource "azurerm_role_assignment" "current" {
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
-resource "azurerm_role_assignment" "id" {
+resource "azurerm_role_assignment" "acme" {
   scope                = azurerm_key_vault.keyvault.id
   role_definition_name = "Key Vault Administrator"
   principal_id         = var.principalId
+}
+
+resource "azurerm_role_assignment" "cdn" {
+  scope                = azurerm_key_vault.keyvault.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = var.cdnPrincipalId
+}
+
+resource "azurerm_role_assignment" "cdn-reader" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Reader"
+  principal_id         = var.cdnPrincipalId
 }

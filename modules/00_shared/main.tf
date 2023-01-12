@@ -4,7 +4,7 @@ locals {
   mySqlStorageSizeInMB       = 32768 ##
   mySqlVersion               = "8.0"
   mySqlBackupRetentionInDays = 7
-  cdnSku                     = "Standard_Microsoft"
+  cdnSku                     = "Standard_Verizon"
   servicePlanOSType          = "Windows"
 }
 
@@ -14,6 +14,12 @@ data "azurerm_subscription" "current" {}
 # THIS WILL BE USED FOR ACME DNS VERIFICATION
 module "serviceprincipal" {
   source = "./serviceprincipal"
+}
+
+resource "azurerm_role_assignment" "acme" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Contributor"
+  principal_id         = module.serviceprincipal.principalId
 }
 
 ## Resource Group Deployment
@@ -37,12 +43,7 @@ module "keyvault" {
   location            = azurerm_resource_group.shared.location
   resource_group_name = azurerm_resource_group.shared.name
   principalId         = azurerm_user_assigned_identity.id.principal_id
-}
-
-resource "azurerm_role_assignment" "serviceprincipal" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Contributor"
-  principal_id         = module.serviceprincipal.principalId
+  cdnPrincipalId      = module.serviceprincipal.cdnPrincipalId
 }
 
 ## storage account for assets
@@ -71,7 +72,7 @@ resource "azurerm_storage_account" "storage" {
 
 ## CDN (FrontDoor) Profile
 resource "azurerm_cdn_profile" "cdn" {
-  name                = "${var.resourcePrefix}-cdn"
+  name                = "${var.resourcePrefix}-cdn-profile"
   location            = azurerm_resource_group.shared.location
   resource_group_name = azurerm_resource_group.shared.name
   sku                 = local.cdnSku

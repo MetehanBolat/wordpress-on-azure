@@ -1,3 +1,8 @@
+locals {
+  ## Azure CDN App
+  applicationId = "205478c0-bd83-4e1b-a9d6-db63a3e1e1c8"
+}
+
 data "azuread_client_config" "current" {}
 
 # Retrieve domain information
@@ -76,3 +81,7 @@ resource "azuread_service_principal_password" "acme" {
   service_principal_id = azuread_service_principal.acme.object_id
 }
 
+resource "azuread_service_principal" "cdn" {
+  application_id = local.applicationId
+  use_existing   = true
+}

@@ -58,9 +58,9 @@ resource "azurerm_app_service_custom_hostname_binding" "www" {
 }
 
 #### DNS CName Record for assets.<domain>
-resource "azurerm_dns_cname_record" "assets" {
+resource "azurerm_dns_cname_record" "cdn" {
   for_each            = var.siteConfig
-  name                = "assets"
+  name                = "cdn"
   zone_name           = var.dnsZone[each.value.dnsName]
   resource_group_name = var.dnsRG[each.value.dnsName]
   ttl                 = var.defaultTTL

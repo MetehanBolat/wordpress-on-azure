@@ -75,28 +75,26 @@ module "custom-dns" {
   siteConfig     = var.siteConfig
 }
 
-#
-### SSL Deployment
-#module "ssl" {
-#  source                  = "./modules/ssl"
-#  resource_group_name     = azurerm_resource_group.rg.name
-#  principalId             = module.serviceprincipal.principalId
-#  clientId                = module.serviceprincipal.clientId
-#  clientSecret            = module.serviceprincipal.clientSecret
-#  siteConfig              = var.siteConfig
-#  location                = var.location
-#  keyVaultId              = module.keyvault.keyVaultId
-#}
+module "ssl" {
+  source       = "./modules/05_ssl"
+  dnsZone      = module.dns.dnsZone
+  dnsRG        = module.dns.rg
+  clientId     = module.shared.clientId
+  clientSecret = module.shared.clientSecret
+  keyVaultId   = module.shared.keyVaultId
+  siteConfig   = var.siteConfig
+}#
 
-#module "ssl-rehber" {
-#  source                  = "./modules/ssl"
-#  resource_group_name     = azurerm_resource_group.rg.name
-#  bindingId-www           = module.app.bindingId-www["www.talihavana.com"]
-#  bindingId-root          = module.app.bindingId-root["talihavana.com"]
-#  clientId                = module.serviceprincipal.clientId
-#  clientSecret            = module.serviceprincipal.clientSecret
-#  siteConfig              = var.siteConfig["hotel"]
-#  location                = var.location
-#  keyVaultId              = module.keyvault.keyVaultId
-#}
-
+module "ssl-binding" {
+  source             = "./modules/06_ssl-binding"
+  location           = var.location
+  dnsZone            = module.dns.dnsZone
+  dnsRG              = module.dns.rg
+  bindingId-www      = module.custom-dns.bindingId-www
+  bindingId-root     = module.custom-dns.bindingId-root
+  cdnEndpointId      = module.cdn.cdnEndpointId
+  cdnDns             = module.custom-dns.cdnDns
+  certificateId-www  = module.ssl.certificateId-www
+  certificateId-root = module.ssl.certificateId-root
+  siteConfig         = var.siteConfig
+}
