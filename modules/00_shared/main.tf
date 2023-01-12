@@ -4,7 +4,7 @@ locals {
   mySqlStorageSizeInMB       = 32768 ##
   mySqlVersion               = "8.0"
   mySqlBackupRetentionInDays = 7
-  cdnSku                     = "Standard_Verizon"
+  cdnSku                     = "Standard_Microsoft"
   servicePlanOSType          = "Windows"
 }
 
@@ -72,7 +72,7 @@ resource "azurerm_storage_account" "storage" {
 
 ## CDN (FrontDoor) Profile
 resource "azurerm_cdn_profile" "cdn" {
-  name                = "${var.resourcePrefix}-cdn-profile"
+  name                = "${var.resourcePrefix}-cdn"
   location            = azurerm_resource_group.shared.location
   resource_group_name = azurerm_resource_group.shared.name
   sku                 = local.cdnSku

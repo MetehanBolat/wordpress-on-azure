@@ -40,15 +40,16 @@ resource "azurerm_app_service_certificate_binding" "root" {
 
 resource "azurerm_cdn_endpoint_custom_domain" "cdn" {
   for_each        = var.siteConfig
-  name            = each.value.name
+  name            = "${each.value.name}-endpoint"
   cdn_endpoint_id = var.cdnEndpointId[each.value.name]
   host_name       = var.cdnDns[each.value.dnsName]
-  #user_managed_https {
-  #  key_vault_secret_id = var.certificateId-www["star-${each.value.name}"]
-  #}
-  cdn_managed_https {
-    certificate_type = "Dedicated"
-    protocol_type    = "ServerNameIndication"
-    tls_version      = "TLS12"
+  user_managed_https {
+    key_vault_secret_id = var.certificateId-www["star-${each.value.name}"]
+    tls_version = "TLS12"
   }
+  #cdn_managed_https {
+  #  certificate_type = "Dedicated"
+  #  protocol_type    = "ServerNameIndication"
+  #  tls_version      = "TLS12"
+  #}
 }
