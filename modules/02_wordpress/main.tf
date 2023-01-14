@@ -30,6 +30,23 @@ resource "azurerm_storage_container" "container" {
   container_access_type = "blob"
 }
 
+### Storage secret
+resource "azurerm_key_vault_secret" "storageName" {
+  name         = "storageName"
+  value        = var.storageName
+  key_vault_id = var.keyVaultId
+}
+resource "azurerm_key_vault_secret" "storageKey" {
+  name         = "storageKey"
+  value        = var.storageKey
+  key_vault_id = var.keyVaultId
+}
+resource "azurerm_key_vault_secret" "container" {
+  for_each     = var.siteConfig
+  name         = "container-${each.value.name}"
+  value        = azurerm_storage_container.container[each.key].name
+  key_vault_id = var.keyVaultId
+}
 ### Connection string secret
 resource "azurerm_key_vault_secret" "connectionString" {
   for_each     = var.siteConfig
@@ -77,9 +94,9 @@ resource "azurerm_windows_web_app" "app" {
   app_settings = {
     "DB_SSL_CONNECTION"                      = "true"
     "MICROSOFT_AZURE_USE_FOR_DEFAULT_UPLOAD" = "true"
-    "MICROSOFT_AZURE_ACCOUNT_NAME"           = "${var.storageName}"
-    "MICROSOFT_AZURE_ACCOUNT_KEY"            = "${var.storageKey}"
-    "MICROSOFT_AZURE_CONTAINER"              = "${azurerm_storage_container.container[each.key].name}"
+    "MICROSOFT_AZURE_ACCOUNT_NAME"           = "@Microsoft.KeyVault(VaultName=${var.keyVaultName};SecretName=${azurerm_key_vault_secret.storageName.name})"
+    "MICROSOFT_AZURE_ACCOUNT_KEY"            = "@Microsoft.KeyVault(VaultName=${var.keyVaultName};SecretName=${azurerm_key_vault_secret.storageKey.name})"
+    "MICROSOFT_AZURE_CONTAINER"              = "@Microsoft.KeyVault(VaultName=${var.keyVaultName};SecretName=${azurerm_key_vault_secret.container[each.key].name})"
   }
 
   connection_string {
