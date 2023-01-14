@@ -7,9 +7,9 @@ variable "appServiceName" {
 variable "outboundIP" {
   description = "List of IP addresses for the app services"
 }
-variable "cdnEndpointDNS" {
-  description = "FQDN of CDN endpoint to set CNAME records"
-}
+#variable "cdnEndpointDNS" {
+#  description = "FQDN of CDN endpoint to set CNAME records"
+#}
 variable "dnsZone" {
   description = "DNS Zone name to add records"
 }

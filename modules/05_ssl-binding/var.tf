@@ -3,12 +3,18 @@ variable "location" {
   description = "Azure Location to deploy resources"
 }
 
+variable "rgName" {
+  type = string
+  description = "shared resource group name"
+}
+variable "keyVaultId" {
+  type = string
+  description = "ResourceId of the key vault resource"
+}
 variable "dnsZone" {
   description = "DNS Zone name to add records"
 }
-variable "dnsRG" {
-  description = "Resource group name of the DNS Zone"
-}
+
 
 variable "bindingId-www" {
   description = "Custom hostname bindingId for www.<domain>"
@@ -17,18 +23,28 @@ variable "bindingId-root" {
   description = "Custom hostname bindingId for <domain>"
 }
 
-variable "cdnEndpointId" {
-  description = "Custom hostname bindingId for <domain>"
+#variable "cdnEndpointId" {
+#  description = "Custom hostname bindingId for <domain>"
+#}
+#variable "cdnDns" {
+#  description = "DNS for CDN endpoint"
+#}
+#variable "secretless_cert" {
+#  description = "Secretless id of the wildcard certificate for CDN endpoint"
+#}
+
+variable "secretId-www" {
+  description = "KeyVault certificate for the wildcard DNS"
 }
-variable "cdnDns" {
-  description = "DNS for CDN endpoint"
+variable "secretId-root" {
+  description = "KeyVault certificate for the root DNS"
 }
 
 variable "certificateId-www" {
-  description = "KeyVault Certificate for www.<domain>"
+  description = "Managed certificate for www DNS"
 }
 variable "certificateId-root" {
-  description = "KeyVault Certificate for <domain>"
+  description = "Managed certificate for root DNS"
 }
 
 variable "siteConfig" {

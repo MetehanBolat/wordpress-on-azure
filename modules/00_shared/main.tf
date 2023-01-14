@@ -43,7 +43,7 @@ module "keyvault" {
   location            = azurerm_resource_group.shared.location
   resource_group_name = azurerm_resource_group.shared.name
   principalId         = azurerm_user_assigned_identity.id.principal_id
-  cdnPrincipalId      = module.serviceprincipal.cdnPrincipalId
+  #cdnPrincipalId      = module.serviceprincipal.cdnPrincipalId
 }
 
 ## storage account for assets
@@ -70,13 +70,19 @@ resource "azurerm_storage_account" "storage" {
   }
 }
 
-## CDN (FrontDoor) Profile
-resource "azurerm_cdn_profile" "cdn" {
-  name                = "${var.resourcePrefix}-cdn"
-  location            = azurerm_resource_group.shared.location
-  resource_group_name = azurerm_resource_group.shared.name
-  sku                 = local.cdnSku
+resource "azurerm_storage_container" "poshacme" {
+  name                  = "poshacme"
+  storage_account_name  = azurerm_storage_account.storage.name
+  container_access_type = "private"
 }
+
+### CDN (FrontDoor) Profile
+#resource "azurerm_cdn_profile" "cdn" {
+#  name                = "${var.resourcePrefix}-cdn"
+#  location            = azurerm_resource_group.shared.location
+#  resource_group_name = azurerm_resource_group.shared.name
+#  sku                 = local.cdnSku
+#}
 
 ## Service Plan Deployment
 resource "azurerm_service_plan" "serviceplan" {

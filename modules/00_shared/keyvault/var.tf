@@ -14,7 +14,7 @@ variable "principalId" {
   type        = string
   description = "ObjectId of the managed identity, to set RBAC"
 }
-variable "cdnPrincipalId" {
-  type        = string
-  description = "ObjectId of the Azure CDN Gallery Application, to set RBAC"
-}
+#variable "cdnPrincipalId" {
+#  type        = string
+#  description = "ObjectId of the Azure CDN Gallery Application, to set RBAC"
+#}

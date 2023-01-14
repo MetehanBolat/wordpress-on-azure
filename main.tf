@@ -50,51 +50,65 @@ module "wordpress" {
   adminName       = module.shared.adminName
   adminPassword   = module.shared.adminPassword
   keyVaultId      = module.shared.keyVaultId
+  keyVaultName    = module.shared.keyVaultName
   siteConfig      = var.siteConfig
 }
 
 ## per site CDN endpoints for storage
 module "cdn" {
   source          = "./modules/03_cdn"
-  location        = var.location
-  cdnRGName       = module.shared.rg
-  cdnProfileName  = module.shared.cndProfileName
-  storageFqdn     = module.shared.storageFqdn
-  siteConfig      = var.siteConfig
+  #location        = var.location
+  #cdnRGName       = module.shared.rg
+  #cdnProfileName  = module.shared.cndProfileName
+  #storageFqdn     = module.shared.storageFqdn
+  #siteConfig      = var.siteConfig
 }
 
 ## Custom DNS hostname binding for AppServices and CDN Endpoints
 module "custom-dns" {
-  source         = "./modules/04_custom-dns"
+  source         = "./modules/03_custom-dns"
   dnsTxtCode     = module.wordpress.dnsTxtCode
   appServiceName = module.wordpress.appServiceName
   outboundIP     = module.wordpress.outboundIP
-  cdnEndpointDNS = module.cdn.cdnEndpointDNS
+  #cdnEndpointDNS = module.cdn.cdnEndpointDNS
   dnsZone        = module.dns.dnsZone
   dnsRG          = module.dns.rg
   siteConfig     = var.siteConfig
 }
 
-module "ssl" {
-  source       = "./modules/05_ssl"
-  dnsZone      = module.dns.dnsZone
-  dnsRG        = module.dns.rg
-  clientId     = module.shared.clientId
-  clientSecret = module.shared.clientSecret
-  keyVaultId   = module.shared.keyVaultId
-  siteConfig   = var.siteConfig
-}#
+module "certbot" {
+  source     = "./modules/04_certbot"
+  storageSAS = module.shared.storageSAS
+  keyVaultId = module.shared.keyVaultId
+  siteConfig = var.siteConfig
+}
 
 module "ssl-binding" {
-  source             = "./modules/06_ssl-binding"
+  source             = "./modules/05_ssl-binding"
   location           = var.location
+  rgName             = module.shared.rg
+  keyVaultId         = module.shared.keyVaultId
   dnsZone            = module.dns.dnsZone
-  dnsRG              = module.dns.rg
   bindingId-www      = module.custom-dns.bindingId-www
   bindingId-root     = module.custom-dns.bindingId-root
-  cdnEndpointId      = module.cdn.cdnEndpointId
-  cdnDns             = module.custom-dns.cdnDns
-  certificateId-www  = module.ssl.certificateId-www
-  certificateId-root = module.ssl.certificateId-root
+  #cdnEndpointId      = module.cdn.cdnEndpointId
+  #cdnDns             = module.custom-dns.cdnDns
+  #secretless_cert    = module.certbot.secretless-cert
+  certificateId-www  = module.custom-dns.certificateId-www
+  certificateId-root = module.custom-dns.certificateId-root
+  secretId-www       = module.certbot.secretId-www
+  secretId-root      = module.certbot.secretId-root
   siteConfig         = var.siteConfig
 }
+
+#module "ssl" {
+#  source       = "./modules/05_ssl"
+#  #dnsZone      = module.dns.dnsZone
+#  #dnsRG        = module.dns.rg
+#  #clientId     = module.shared.clientId
+#  #clientSecret = module.shared.clientSecret
+#  #keyVaultId   = module.shared.keyVaultId
+#  #siteConfig   = var.siteConfig
+#}#
+
+

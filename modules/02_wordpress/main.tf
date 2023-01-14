@@ -49,6 +49,8 @@ resource "azurerm_windows_web_app" "app" {
   resource_group_name = var.rgName[each.value.dnsName]
   location            = var.location
   service_plan_id     = var.servicePlanId
+  
+  key_vault_reference_identity_id = var.identityId
 
   site_config {
     always_on                = true
@@ -83,7 +85,7 @@ resource "azurerm_windows_web_app" "app" {
   connection_string {
     name  = "default"
     type  = "MySql"
-    value = azurerm_key_vault_secret.connectionString[each.key].value
+    value = "@Microsoft.KeyVault(VaultName=${var.keyVaultName};SecretName=${azurerm_key_vault_secret.connectionString[each.key].name})"
   }
 
   identity {

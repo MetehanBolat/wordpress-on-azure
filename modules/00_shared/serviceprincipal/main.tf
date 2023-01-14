@@ -81,7 +81,7 @@ resource "azuread_service_principal_password" "acme" {
   service_principal_id = azuread_service_principal.acme.object_id
 }
 
-resource "azuread_service_principal" "cdn" {
-  application_id = local.applicationId
-  use_existing   = true
-}
+#resource "azuread_service_principal" "cdn" {
+#  application_id = local.applicationId
+#  use_existing   = true
+#}

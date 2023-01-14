@@ -29,14 +29,14 @@ output "servicePlanName" {
   value = azurerm_service_plan.serviceplan.name
 }
 
-## CDN Profile Resource Id
-output "cndProfileId" {
-  value = azurerm_cdn_profile.cdn.id
-}
-## CDN Profile Name
-output "cndProfileName" {
-  value = azurerm_cdn_profile.cdn.name
-}
+### CDN Profile Resource Id
+#output "cndProfileId" {
+#  value = azurerm_cdn_profile.cdn.id
+#}
+### CDN Profile Name
+#output "cndProfileName" {
+#  value = azurerm_cdn_profile.cdn.name
+#}
 
 ## MySQL Server ResourceId
 output "mysqlServerId" {
@@ -71,6 +71,10 @@ output "identityId" {
   value = azurerm_user_assigned_identity.id.id
 }
 
+## KeyVault Name
+output "keyVaultName" {
+  value = module.keyvault.keyVaultName
+}
 ## KeyVault Id
 output "keyVaultId" {
   value = module.keyvault.keyVaultId
@@ -93,6 +97,29 @@ output "principalId" {
 }
 
 ## Service Principal clientId (applicationId) of Azure CDN
-output "cdnPrincipalId" {
-  value = module.serviceprincipal.cdnPrincipalId
+#output "cdnPrincipalId" {
+#  value = module.serviceprincipal.cdnPrincipalId
+#}
+
+## Storage SAS Uri for poshacme
+data "azurerm_storage_account_blob_container_sas" "sas" {
+  connection_string = azurerm_storage_account.storage.primary_connection_string
+  container_name    = azurerm_storage_container.poshacme.name
+  https_only        = true
+
+  start  = "2023-01-13T08:00:00Z"
+  expiry = "2025-01-10T08:00:00Z"
+
+  permissions {
+    read   = true
+    add    = true
+    create = true
+    write  = true
+    delete = true
+    list   = true
+  }
+}
+
+output "storageSAS" {
+  value = "${azurerm_storage_account.storage.primary_blob_endpoint}${azurerm_storage_container.poshacme.name}${data.azurerm_storage_account_blob_container_sas.sas.sas}"
 }

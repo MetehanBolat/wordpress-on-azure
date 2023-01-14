@@ -3,7 +3,7 @@ data "azurerm_subscription" "current" {}
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "keyvault" {
-  name                            = "${var.resourcePrefix}-keyvault"
+  name                            = "${var.resourcePrefix}-vault"
   resource_group_name             = var.resource_group_name
   location                        = var.location
   tenant_id                       = data.azurerm_subscription.current.tenant_id
@@ -28,14 +28,14 @@ resource "azurerm_role_assignment" "acme" {
   principal_id         = var.principalId
 }
 
-resource "azurerm_role_assignment" "cdn" {
-  scope                = azurerm_key_vault.keyvault.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = var.cdnPrincipalId
-}
-
-resource "azurerm_role_assignment" "cdn-reader" {
-  scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Reader"
-  principal_id         = var.cdnPrincipalId
-}
+#resource "azurerm_role_assignment" "cdn" {
+#  scope                = azurerm_key_vault.keyvault.id
+#  role_definition_name = "Key Vault Administrator"
+#  principal_id         = var.cdnPrincipalId
+#}
+#
+#resource "azurerm_role_assignment" "cdn-reader" {
+#  scope                = data.azurerm_subscription.current.id
+#  role_definition_name = "Reader"
+#  principal_id         = var.cdnPrincipalId
+#}

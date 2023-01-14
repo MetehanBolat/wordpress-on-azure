@@ -48,6 +48,9 @@ resource "azurerm_app_service_custom_hostname_binding" "root" {
   hostname            = each.value.dnsName
   app_service_name    = var.appServiceName[each.value.name]
   resource_group_name = var.dnsRG[each.value.dnsName]
+  lifecycle {
+    ignore_changes = [ssl_state, thumbprint]
+  }
 }
 resource "azurerm_app_service_custom_hostname_binding" "www" {
   depends_on          = [ azurerm_dns_txt_record.www ]
@@ -55,14 +58,27 @@ resource "azurerm_app_service_custom_hostname_binding" "www" {
   hostname            = "www.${each.value.dnsName}"
   app_service_name    = var.appServiceName[each.value.name]
   resource_group_name = var.dnsRG[each.value.dnsName]
+  lifecycle {
+    ignore_changes = [ssl_state, thumbprint]
+  }
 }
 
-#### DNS CName Record for assets.<domain>
-resource "azurerm_dns_cname_record" "cdn" {
-  for_each            = var.siteConfig
-  name                = "cdn"
-  zone_name           = var.dnsZone[each.value.dnsName]
-  resource_group_name = var.dnsRG[each.value.dnsName]
-  ttl                 = var.defaultTTL
-  record              = var.cdnEndpointDNS[each.value.name]
+resource "azurerm_app_service_managed_certificate" "www" {
+  for_each                   = var.siteConfig
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.www[each.key].id
 }
+
+resource "azurerm_app_service_managed_certificate" "root" {
+  for_each                   = var.siteConfig
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.root[each.key].id
+}
+
+###### DNS CName Record for assets.<domain>
+#resource "azurerm_dns_cname_record" "cdn" {
+#  for_each            = var.siteConfig
+#  name                = "cdn"
+#  zone_name           = var.dnsZone[each.value.dnsName]
+#  resource_group_name = var.dnsRG[each.value.dnsName]
+#  ttl                 = var.defaultTTL
+#  record              = var.cdnEndpointDNS[each.value.name]
+#}

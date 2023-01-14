@@ -51,6 +51,10 @@ variable "keyVaultId" {
   type        = string
   description = "KeyVault ResourceId to save secrets"
 }
+variable "keyVaultName" {
+  type        = string
+  description = "KeyVault Resource Name to generate secret Uri"
+}
 variable "siteConfig" {
   description = "App Service Configuration (repo/appSettings/etc)"
   default = {
