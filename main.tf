@@ -54,23 +54,12 @@ module "wordpress" {
   siteConfig      = var.siteConfig
 }
 
-## per site CDN endpoints for storage
-module "cdn" {
-  source          = "./modules/03_cdn"
-  #location        = var.location
-  #cdnRGName       = module.shared.rg
-  #cdnProfileName  = module.shared.cndProfileName
-  #storageFqdn     = module.shared.storageFqdn
-  #siteConfig      = var.siteConfig
-}
-
 ## Custom DNS hostname binding for AppServices and CDN Endpoints
 module "custom-dns" {
   source         = "./modules/03_custom-dns"
   dnsTxtCode     = module.wordpress.dnsTxtCode
   appServiceName = module.wordpress.appServiceName
   outboundIP     = module.wordpress.outboundIP
-  #cdnEndpointDNS = module.cdn.cdnEndpointDNS
   dnsZone        = module.dns.dnsZone
   dnsRG          = module.dns.rg
   siteConfig     = var.siteConfig
@@ -91,9 +80,6 @@ module "ssl-binding" {
   dnsZone            = module.dns.dnsZone
   bindingId-www      = module.custom-dns.bindingId-www
   bindingId-root     = module.custom-dns.bindingId-root
-  #cdnEndpointId      = module.cdn.cdnEndpointId
-  #cdnDns             = module.custom-dns.cdnDns
-  #secretless_cert    = module.certbot.secretless-cert
   certificateId-www  = module.custom-dns.certificateId-www
   certificateId-root = module.custom-dns.certificateId-root
   secretId-www       = module.certbot.secretId-www
@@ -101,14 +87,5 @@ module "ssl-binding" {
   siteConfig         = var.siteConfig
 }
 
-#module "ssl" {
-#  source       = "./modules/05_ssl"
-#  #dnsZone      = module.dns.dnsZone
-#  #dnsRG        = module.dns.rg
-#  #clientId     = module.shared.clientId
-#  #clientSecret = module.shared.clientSecret
-#  #keyVaultId   = module.shared.keyVaultId
-#  #siteConfig   = var.siteConfig
-#}#
 
 
