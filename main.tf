@@ -16,7 +16,7 @@ provider "azuread" {
   tenant_id = data.azurerm_subscription.current.tenant_id
 }
 
-## ServicePrincipal, KeyVault, CDN Profile, ServicePlan, MySQL Server, Storage Account
+## ServicePrincipal, KeyVault, ServicePlan, MySQL Server, Storage Account
 module "shared" {
   source                 = "./modules/00_shared"
   resourcePrefix         = var.resourcePrefix

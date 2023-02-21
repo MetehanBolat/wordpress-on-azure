@@ -41,7 +41,7 @@ data "azurerm_key_vault_certificate" "www" {
 
 data "azurerm_key_vault_certificate" "root" {
   for_each     = var.siteConfig
-  depends_on   = [ null_resource.www-import ]
+  depends_on   = [ null_resource.root-import ]
   name         = replace(each.value.dnsName,".","-")
   key_vault_id = var.keyVaultId
 }
